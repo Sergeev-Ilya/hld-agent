@@ -1,0 +1,31 @@
+flowchart TB
+    subgraph START[1. Запуск]
+        NEW["created<br/>Проверенное входное событие"]
+        RUN["running<br/>Ограниченный шаг обработки"]
+    end
+    subgraph WAIT[2. Сохраняемые ожидания]
+        USER["waiting_user<br/>Уточнение от клиента"]
+        CONSENT["waiting_consent<br/>Точная операция и срок"]
+        TOOL["waiting_tool<br/>Результат или сверка статуса"]
+        HUMAN["waiting_handoff<br/>Принятие оператором"]
+    end
+    subgraph WAKE[3. Продолжение]
+        EVENT["Проверить событие продолжения<br/>Доступ, срок, владелец, дедупликация"]
+    end
+    subgraph ENDING[4. Завершение задачи]
+        DONE["completed<br/>Ответ / результат / передача"]
+        STOP["cancelled / expired / failed<br/>Сохранённая причина"]
+    end
+    NEW --> RUN
+    RUN --> USER
+    RUN --> CONSENT
+    RUN --> TOOL
+    RUN --> HUMAN
+    USER --> EVENT
+    CONSENT --> EVENT
+    TOOL --> EVENT
+    HUMAN --> EVENT
+    EVENT --> RUN
+    RUN --> DONE
+    RUN --> STOP
+    EVENT --> STOP

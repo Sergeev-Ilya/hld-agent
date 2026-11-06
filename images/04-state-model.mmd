@@ -1,0 +1,35 @@
+flowchart TB
+    subgraph INPUT[1. Источники событий]
+        MSG["Сообщение / подтверждение<br/>Поп-ап и Chat API"]
+        EXT["Результат операции / оператор<br/>Проверенный внешний источник"]
+    end
+    subgraph STEP[2. Обработка одного шага]
+        LOAD["Загрузить состояние и версию<br/>Проверить доступ и event_id"]
+        DECIDE["Определить следующий шаг<br/>LLM при необходимости"]
+        CHECK["Проверить переход и команду<br/>Права, согласие, лимиты"]
+        COMMIT["Зафиксировать атомарно<br/>Событие, состояние, outbox"]
+    end
+    subgraph STORE[3. Согласованное долговременное состояние]
+        CONV["Conversation<br/>Владелец и сообщения"]
+        RUN["AgentRun<br/>Шаг, ожидание, версии"]
+        ACT["Action / Consent / Execution<br/>Параметры и результат"]
+        OUT["Outbox<br/>Неотправленные команды и события"]
+    end
+    subgraph EFFECT[4. Выполнение побочных эффектов]
+        SEND["Диспетчер outbox<br/>Доставка с повторами"]
+        API["SSE / бизнес-API / оператор<br/>Дедупликация и идемпотентность"]
+    end
+    MSG --> LOAD
+    EXT --> LOAD
+    LOAD --> DECIDE
+    DECIDE --> CHECK
+    CHECK --> COMMIT
+    CONV --> LOAD
+    RUN --> LOAD
+    ACT --> LOAD
+    COMMIT --> CONV
+    COMMIT --> RUN
+    COMMIT --> ACT
+    COMMIT --> OUT
+    OUT --> SEND
+    SEND --> API
